@@ -1,0 +1,36 @@
+name: AI Code Reviewer PR Pipeline
+
+pr:
+  branches:
+    include:
+      - main
+
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js 20.x'
+
+  - script: |
+      npm ci
+    displayName: 'Install Dependencies'
+
+  - script: |
+      npx ts-node ai-reviewer.ts
+    displayName: 'Run AI Code Reviewer'
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      OPENAI_API_KEY: $(OPENAI_API_KEY)
+      # Optional OpenAI Configuration:
+      # OPENAI_MODEL: 'gpt-4o'
+      # OPENAI_BASE_URL: '$(OPENAI_BASE_URL)'
+      #
+      # Optional Azure OpenAI Configuration:
+      # AZURE_OPENAI_ENDPOINT: '$(AZURE_OPENAI_ENDPOINT)'
+      # AZURE_OPENAI_API_KEY: '$(AZURE_OPENAI_API_KEY)'
+      # AZURE_OPENAI_DEPLOYMENT: '$(AZURE_OPENAI_DEPLOYMENT)'

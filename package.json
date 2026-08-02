@@ -1,0 +1,32 @@
+{
+  "name": "ai-code-reviewer",
+  "version": "1.0.0",
+  "description": "Automated internal AI code review tool integrated with Azure DevOps Pull Requests",
+  "main": "ai-reviewer.ts",
+  "scripts": {
+    "build": "tsc",
+    "review": "ts-node ai-reviewer.ts"
+  },
+  "keywords": [
+    "azure-devops",
+    "pull-request",
+    "code-review",
+    "openai",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "azure-devops-node-api": "^14.1.0",
+    "openai": "^4.86.0",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.19",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
