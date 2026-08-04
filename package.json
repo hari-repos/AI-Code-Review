@@ -1,20 +1,30 @@
 {
-  "name": "ai-code-reviewer",
+  "name": "@mycompany/ai-capabilities",
   "version": "1.0.0",
-  "description": "Automated internal AI code review tool integrated with Azure DevOps Pull Requests",
-  "main": "ai-reviewer.ts",
+  "description": "Enterprise AI Capabilities SDK and CLI for custom internal AI solutions, automated PR reviews, and test generation.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ai-capabilities": "./dist/cli.js",
+    "ai-pr-review": "./dist/cli.js",
+    "ai-generate-tests": "./dist/cli.js"
+  },
   "scripts": {
     "build": "tsc",
-    "review": "ts-node ai-reviewer.ts"
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli.js"
   },
   "keywords": [
-    "azure-devops",
-    "pull-request",
-    "code-review",
+    "ai",
+    "sdk",
     "openai",
-    "ai"
+    "azure-openai",
+    "azure-devops",
+    "code-review",
+    "test-generation",
+    "playwright"
   ],
-  "author": "",
+  "author": "Platform Engineering",
   "license": "MIT",
   "dependencies": {
     "azure-devops-node-api": "^14.1.0",
@@ -23,7 +33,6 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.19",
-    "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "engines": {
