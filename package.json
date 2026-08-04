@@ -2,8 +2,15 @@
   "name": "@mycompany/ai-capabilities",
   "version": "1.0.0",
   "description": "Enterprise AI Capabilities SDK and CLI for custom internal AI solutions, automated PR reviews, and test generation.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
     "ai-capabilities": "./dist/cli.js",
     "ai-pr-review": "./dist/cli.js",
