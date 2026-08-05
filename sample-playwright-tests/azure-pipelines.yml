@@ -16,38 +16,36 @@ jobs:
   - deployment: AI_PR_Review
     displayName: 'AI PR Code Reviewer'
     pool:
-      vmImage: 'ubuntu-latest'
+      name: 'YOUR_SELF_HOSTED_POOL_NAME'
+      demands:
+        - agent.name -equals YOUR_AGENT_NAME
+
     environment: 'AI-Review-Approval'
     strategy:
       runOnce:
         deploy:
           steps:
             - checkout: self
+              clean: false
               fetchDepth: 0
+              persistCredentials: true
 
-            - task: NodeTool@0
-              inputs:
-                versionSpec: '20.x'
+            # 1. Update repo root .npmrc with AI Feed URL using bash (bypasses cmd.exe)
+            - bash: |
+                echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/ACTUAL_AI_FEED_NAME/npm/registry/" >> $(Build.SourcesDirectory)/.npmrc
+                echo "always-auth=true" >> $(Build.SourcesDirectory)/.npmrc
+              displayName: 'Update repo .npmrc with AI Feed URL'
 
-            # 1. Create temporary directory and .npmrc file
-            - script: |
-                mkdir -p $(Pipeline.Workspace)/ai-feed
-                echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/ACTUAL_AI_FEED_NAME/npm/registry/" > $(Pipeline.Workspace)/ai-feed/.npmrc
-                echo "always-auth=true" >> $(Pipeline.Workspace)/ai-feed/.npmrc
-              displayName: 'Prepare AI Feed Configuration'
-
-            # 2. Authenticate the AI Feed .npmrc (Input parameter MUST be workingFile)
+            # 2. Authenticate repo .npmrc
             - task: npmAuthenticate@0
-              displayName: 'Authenticate with AI Feed'
+              displayName: 'Authenticate with Azure Artifacts'
               inputs:
-                workingFile: '$(Pipeline.Workspace)/ai-feed/.npmrc'
+                workingFile: '$(Build.SourcesDirectory)/.npmrc'
 
-            # 3. Install @mycompany/ai-capabilities from AI Feed & run with npx
-            - script: |
-                # Install package using dedicated AI feed config
-                npm install --no-save --userconfig $(Pipeline.Workspace)/ai-feed/.npmrc @mycompany/ai-capabilities
-                
-                # Execute review using npx
+            # 3. Install AI package & run review using bash (bypasses cmd.exe)
+            - bash: |
+                node -v
+                npm install --no-save @mycompany/ai-capabilities
                 npx ai-pr-review
               displayName: 'Fetch AI Package & Execute Review'
               env:
