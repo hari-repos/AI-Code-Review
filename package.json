@@ -17,7 +17,7 @@
     "ai-generate-tests": "./dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/cli.js",
     "prepublishOnly": "npm run build",
     "start": "node dist/cli.js"
   },
