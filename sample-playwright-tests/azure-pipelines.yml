@@ -29,14 +29,26 @@ jobs:
               inputs:
                 versionSpec: '20.x'
 
-            - task: npmAuthenticate@0
-              inputs:
-                workingIndex: '$(System.DefaultWorkingDirectory)/.npmrc'
-
+            # 1. Create temporary .ai.npmrc pointing ONLY to the AI Feed URL
             - script: |
-                npm ci
-                npx --yes @mycompany/ai-capabilities review
-              displayName: 'Execute AI PR Review'
+                echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/ACTUAL_AI_FEED_NAME/npm/registry/" > $(Pipeline.Workspace)/.ai.npmrc
+                echo "always-auth=true" >> $(Pipeline.Workspace)/.ai.npmrc
+              displayName: 'Prepare AI Feed Configuration'
+
+            # 2. Authenticate ONLY the AI Feed config
+            - task: npmAuthenticate@0
+              displayName: 'Authenticate with AI Feed'
+              inputs:
+                workingIndex: '$(Pipeline.Workspace)/.ai.npmrc'
+
+            # 3. Install @mycompany/ai-capabilities from AI Feed & run with npx
+            - script: |
+                # Install package using dedicated AI feed config
+                npm install --no-save --userconfig $(Pipeline.Workspace)/.ai.npmrc @mycompany/ai-capabilities
+                
+                # Execute review using npx
+                npx ai-pr-review
+              displayName: 'Fetch AI Package & Execute Review'
               env:
                 SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                 AZURE_OPENAI_ENDPOINT: $(AZURE_OPENAI_ENDPOINT)
