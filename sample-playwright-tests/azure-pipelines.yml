@@ -1,0 +1,43 @@
+name: AI PR Review Pipeline
+
+# 1. Trigger ONLY on PRs targeting listed branches (Other branches will NOT trigger)
+pr:
+  branches:
+    include:
+      - main
+      - develop
+      - release/*
+
+trigger: none
+
+# 2. Variable group for secret keys (OpenAI / ADO tokens)
+variables:
+  - group: AI-Review-Variables  # Variable group configured in Azure DevOps
+
+jobs:
+  # 3. Deployment job linked to Environment for Manual Approval Gate
+  - deployment: AI_PR_Review
+    displayName: 'AI PR Code Reviewer'
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'AI-Review-Approval' # Setup Manual Approvers on this Environment in ADO UI
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+              fetchDepth: 0
+              displayName: 'Checkout repository with full history'
+
+            - task: NodeTool@0
+              inputs:
+                versionSpec: '20.x'
+
+            # 4. Execute AI Review once approved
+            - script: |
+                npm ci
+                npx --yes @mycompany/ai-capabilities review
+              displayName: 'Execute AI Review & Post Comments'
+              env:
+                SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                OPENAI_API_KEY: $(OPENAI_API_KEY)

@@ -1,0 +1,16 @@
+{
+  "name": "playwright-test-suite",
+  "version": "1.0.0",
+  "description": "Sample Playwright E2E automation project integrated with @mycompany/ai-capabilities",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "ai:review": "ai-pr-review"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@mycompany/ai-capabilities": "file:..",
+    "typescript": "^5.7.3"
+  }
+}
