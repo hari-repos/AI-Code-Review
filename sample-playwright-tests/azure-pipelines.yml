@@ -29,18 +29,18 @@ jobs:
               inputs:
                 versionSpec: '20.x'
 
-            # 1. Create temporary directory and .npmrc file (Filename MUST be '.npmrc')
+            # 1. Create temporary directory and .npmrc file
             - script: |
                 mkdir -p $(Pipeline.Workspace)/ai-feed
                 echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/ACTUAL_AI_FEED_NAME/npm/registry/" > $(Pipeline.Workspace)/ai-feed/.npmrc
                 echo "always-auth=true" >> $(Pipeline.Workspace)/ai-feed/.npmrc
               displayName: 'Prepare AI Feed Configuration'
 
-            # 2. Authenticate the AI Feed .npmrc (npmAuthenticate requires filename to end in '.npmrc')
+            # 2. Authenticate the AI Feed .npmrc (Input parameter MUST be workingFile)
             - task: npmAuthenticate@0
               displayName: 'Authenticate with AI Feed'
               inputs:
-                workingIndex: '$(Pipeline.Workspace)/ai-feed/.npmrc'
+                workingFile: '$(Pipeline.Workspace)/ai-feed/.npmrc'
 
             # 3. Install @mycompany/ai-capabilities from AI Feed & run with npx
             - script: |
