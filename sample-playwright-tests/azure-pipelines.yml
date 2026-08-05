@@ -1,6 +1,6 @@
 name: AI PR Review Pipeline
 
-# 1. Trigger ONLY on PRs targeting listed branches (Other branches will NOT trigger)
+# 1. Trigger ONLY when PR target branch is in this list (Non-listed branches will NOT trigger)
 pr:
   branches:
     include:
@@ -10,34 +10,38 @@ pr:
 
 trigger: none
 
-# 2. Variable group for secret keys (OpenAI / ADO tokens)
+# 2. Reference Variable Group in Azure DevOps (Contains Azure OpenAI secrets & endpoints)
 variables:
-  - group: AI-Review-Variables  # Variable group configured in Azure DevOps
+  - group: AI-Review-Variables
 
 jobs:
-  # 3. Deployment job linked to Environment for Manual Approval Gate
+  # 3. Deployment job linked to Environment (Handles Manual Approval in ADO UI)
   - deployment: AI_PR_Review
     displayName: 'AI PR Code Reviewer'
     pool:
       vmImage: 'ubuntu-latest'
-    environment: 'AI-Review-Approval' # Setup Manual Approvers on this Environment in ADO UI
+    environment: 'AI-Review-Approval' # Configure Manual Approvers on this Environment in ADO UI
     strategy:
       runOnce:
         deploy:
           steps:
             - checkout: self
               fetchDepth: 0
-              displayName: 'Checkout repository with full history'
+              displayName: 'Checkout repo with full history'
 
             - task: NodeTool@0
               inputs:
                 versionSpec: '20.x'
 
-            # 4. Execute AI Review once approved
+            # 4. Runs AI Review ONLY AFTER manual approval is granted
             - script: |
                 npm ci
                 npx --yes @mycompany/ai-capabilities review
               displayName: 'Execute AI Review & Post Comments'
               env:
                 SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                OPENAI_API_KEY: $(OPENAI_API_KEY)
+                # Azure OpenAI Environment Variables (automatically detected by createAIClient)
+                AZURE_OPENAI_ENDPOINT: $(AZURE_OPENAI_ENDPOINT)
+                AZURE_OPENAI_API_KEY: $(AZURE_OPENAI_API_KEY)
+                AZURE_OPENAI_DEPLOYMENT: $(AZURE_OPENAI_DEPLOYMENT)
+                # AZURE_OPENAI_API_VERSION: $(AZURE_OPENAI_API_VERSION) # Optional (Defaults to 2024-06-01)
