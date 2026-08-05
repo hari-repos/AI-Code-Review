@@ -10,7 +10,7 @@ pr:
 
 trigger: none
 
-# 2. Reference Variable Group in Azure DevOps (Contains Azure OpenAI secrets & endpoints)
+# 2. Reference Variable Group in Azure DevOps (Contains Azure OpenAI secrets)
 variables:
   - group: AI-Review-Variables
 
@@ -33,15 +33,24 @@ jobs:
               inputs:
                 versionSpec: '20.x'
 
-            # 4. Runs AI Review ONLY AFTER manual approval is granted
+            # 4. Authenticate with Azure Artifacts feed
+            - task: npmAuthenticate@0
+              displayName: 'Authenticate with Azure Artifacts'
+              inputs:
+                workingIndex: '$(System.DefaultWorkingDirectory)/.npmrc'
+
+            # 5. Configure scoped feed & execute AI Review once manual approval is granted
             - script: |
+                # Configure @mycompany scope to point to your Azure Artifacts feed
+                echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/YOUR_FEED_NAME/npm/registry/" > .npmrc
+                echo "always-auth=true" >> .npmrc
+
+                # Install local project dependencies and run AI review
                 npm ci
                 npx --yes @mycompany/ai-capabilities review
               displayName: 'Execute AI Review & Post Comments'
               env:
                 SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                # Azure OpenAI Environment Variables (automatically detected by createAIClient)
                 AZURE_OPENAI_ENDPOINT: $(AZURE_OPENAI_ENDPOINT)
                 AZURE_OPENAI_API_KEY: $(AZURE_OPENAI_API_KEY)
                 AZURE_OPENAI_DEPLOYMENT: $(AZURE_OPENAI_DEPLOYMENT)
-                # AZURE_OPENAI_API_VERSION: $(AZURE_OPENAI_API_VERSION) # Optional (Defaults to 2024-06-01)
