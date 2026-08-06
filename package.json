@@ -13,11 +13,11 @@
   },
   "bin": {
     "ai-capabilities": "./dist/cli.js",
-    "ai-pr-review": "./dist/cli.js",
-    "ai-generate-tests": "./dist/cli.js"
+    "ai-pr-review": "./dist/cli-pr-review.js",
+    "ai-generate-tests": "./dist/cli-generate-tests.js"
   },
   "scripts": {
-    "build": "tsc && chmod +x dist/cli.js",
+    "build": "tsc && chmod +x dist/cli.js dist/cli-pr-review.js dist/cli-generate-tests.js",
     "prepublishOnly": "npm run build",
     "start": "node dist/cli.js"
   },

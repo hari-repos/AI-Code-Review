@@ -30,10 +30,10 @@ jobs:
               fetchDepth: 0
               persistCredentials: true
 
-            # 1. Update repo root .npmrc with AI Feed URL using bash (bypasses cmd.exe)
+            # 1. Update repo root .npmrc using relative path ./.npmrc (Avoids Windows backslash escaping)
             - bash: |
-                echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/ACTUAL_AI_FEED_NAME/npm/registry/" >> $(Build.SourcesDirectory)/.npmrc
-                echo "always-auth=true" >> $(Build.SourcesDirectory)/.npmrc
+                echo "@mycompany:registry=https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/ACTUAL_AI_FEED_NAME/npm/registry/" >> ./.npmrc
+                echo "always-auth=true" >> ./.npmrc
               displayName: 'Update repo .npmrc with AI Feed URL'
 
             # 2. Authenticate repo .npmrc
@@ -42,7 +42,7 @@ jobs:
               inputs:
                 workingFile: '$(Build.SourcesDirectory)/.npmrc'
 
-            # 3. Install AI package & run review using bash (bypasses cmd.exe)
+            # 3. Install AI package & run review
             - bash: |
                 node -v
                 npm install --no-save @mycompany/ai-capabilities

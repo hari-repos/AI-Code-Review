@@ -6,18 +6,10 @@ import { Logger } from './utils/logger';
 
 async function main() {
   const args = process.argv.slice(2);
-  const binaryName = process.argv[1] ? process.argv[1].split('/').pop() : '';
-  let command = args[0];
-
-  if (binaryName === 'ai-pr-review') {
-    command = 'review';
-  } else if (binaryName === 'ai-generate-tests') {
-    command = 'generate-tests';
-  }
+  const command = args[0];
 
   switch (command) {
     case 'review':
-    case 'ai-pr-review':
     case 'pr-review': {
       await runAIReviewer();
       break;
@@ -27,7 +19,7 @@ async function main() {
     case 'test-gen': {
       const sourceFile = args[1] || args.find(a => a.startsWith('--file='))?.split('=')[1];
       if (!sourceFile) {
-        Logger.error('Usage: npx ai-generate-tests <sourceFilePath>');
+        Logger.error('Usage: npx ai-capabilities generate-tests <sourceFilePath>');
         process.exit(1);
       }
       const result = await generateTestCases({ sourceFilePath: sourceFile });
@@ -50,9 +42,6 @@ Usage:
   npx ai-capabilities review              Run PR Code Review
   npx ai-capabilities help                Display help menu
 `);
-      if (command && command !== 'help' && command !== '--help') {
-        await runAIReviewer();
-      }
       break;
     }
   }
